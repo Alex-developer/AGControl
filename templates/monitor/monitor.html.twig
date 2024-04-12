@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="container-fluid">
+    <div class="row">
+        {% for server in servers %}
+            {% include 'monitor/server.html.twig' %}
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <div class="fixed-bottom">
+            <div class="float-left">
+                <button type="button" class="btn btn-lg btn-danger ml-5 mb-2 server-action" data-action="allshutdown">All Shutdown</button>
+            </div>
+
+            <div class="float-right">
+                <button type="button" class="btn btn-lg btn-warning server-action" data-id="this" data-name="This server" data-action="reboot">Reboot</button>
+                <button type="button" class="btn btn-lg btn-danger ml-5 server-action" data-id="this" data-name="This server" data-action="shutdown">Shutdown</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

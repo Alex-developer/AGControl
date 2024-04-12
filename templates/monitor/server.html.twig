@@ -1,0 +1,54 @@
+        <div class="col">
+            <div>
+                <div class="ribbon-wrapper">
+                    <div id="server-status-{{ server.id }}" class="ribbon bg-danger">Down</div>
+                </div>            
+                <div class="server" data-id="{{ server.id }}" data-update="{{ server.timer }}">
+                    <div class="info-box {% if server.global %}bg-light{% else %}bg-secondary{% endif %} server-nbm">   
+                        <span class="info-box-icon bg-success"><a href="{{ server.url }}" target="_blank"><i class="fab fa-raspberry-pi"></i></a></span>
+                        <div class="info-box-content">
+                            <h3>{{ server.name }}</h3>
+                            <h4>{{ server.ip }}</h4>                          
+                        </div>
+                    </div>
+                    <div class="progress bg-dark">
+                        <div class="progress-text"></div>
+                        <div class="progress-bar bg-success text-light" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>                    
+                    <div class="card card-success {% if server.global %}bg-light{% else %}bg-secondary{% endif %}">
+                        <div class="card-body">
+                            <h4 class="text-center">CPU</h4>
+                            <h2 class="server-cpu text-center">--</h2>
+
+                            <h4 class="text-center mt-4">Temp</h4>
+                            <h2 class="server-temp text-center">--</h2>
+
+                            <h4 class="text-center mt-4">Disk</h4>
+                            <h2 class="server-disk text-center">--</h2>
+
+                            <h4 class="text-center mt-4">Allsky</h4>
+                            <h2 class="server-allsky text-center">--</h2>
+
+                            <div class="text-center">
+                                <a class="server-allsky-start server-allsky-btn btn btn-app bg-success" data-action="start" data-id="{{ server.id }}">
+                                    <i class="fas fa-play"></i>
+                                </a>
+                                <a class="server-allsky-stop server-allsky-btn btn btn-app bg-success" data-action="stop" data-id="{{ server.id }}">
+                                    <i class="fas fa-power-off"></i>
+                                </a>
+                                <a class="server-allsky-restart server-allsky-btn btn btn-app bg-success" data-action="restart" data-id="{{ server.id }}">
+                                    <i class="fas fa-sync-alt"></i>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="card card-info {% if server.global %}bg-light{% else %}bg-secondary{% endif %}">
+                        <div class="card-body">
+                            <button type="button" class="btn btn-block btn-lg btn-warning server-action" data-id="{{ server.id }}" data-name="{{ server.name }}" data-action="reboot">Reboot</button>
+                            <button type="button" class="btn btn-block btn-lg btn-danger server-action mt-5"  data-id="{{ server.id }}" data-name="{{ server.name }}" data-action="shutdown">Shutdown</button>
+                        </div>
+                    </div>
+                </div>
+            </div>            
+        </div>

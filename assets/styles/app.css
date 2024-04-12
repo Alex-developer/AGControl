@@ -1,0 +1,28 @@
+body {
+    margin-top: 10px;
+    background-color: #999;;
+}
+
+.btn-app {
+    margin: 0px !important;
+}
+
+.ribbon-wrapper {
+    right: 4px !important;
+    top: -4px !important;
+}
+
+.server-nbm {
+    margin-bottom: 0px !important;
+}
+
+.progress {
+    position: relative !important;
+}
+
+.progress-text {
+    position: absolute;
+    width: 100%;
+    text-align: center;
+    top: 7px;    
+}
