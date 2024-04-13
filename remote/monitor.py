@@ -6,7 +6,7 @@ import psutil
 from psutil._common import bytes2human
 import json
 
-VERSION = '1.0.24'
+VERSION = '1.0.25'
 parser = argparse.ArgumentParser(description='Monitor controls', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-a', '--all', action='store_true', help='Get All data')
 
