@@ -19,6 +19,10 @@ $('.server').each(function () {
     updateServer(servers[id]['el']);
 });
 
+$('#server-page-refresh').on('click', function() {
+    location.reload();
+});
+
 $('.server-allsky-btn').on('click', function () {
     event.stopPropagation();
 
@@ -90,7 +94,9 @@ function updateServer(el) {
 
             $(el).find('.server-cpu').html(result.cpu + '%');
             $(el).find('.server-temp').html(result.temp + '&degC');
-            $(el).find('.server-disk').html(result.disk + '/' + result.disksize);
+            $(el).find('.server-disk').html(result.disk + 'GB/' + result.disksize + 'GB');
+            $(el).find('.server-mem').html(result.memused + '/' + result.memtotal);
+
 
             $(el).find('.server-allsky').html(result.allskytext);
             if (result.allsky == 1) {

@@ -1,6 +1,6 @@
 body {
-    margin-top: 10px;
-    background-color: #999;;
+    background-color: #999;
+    font-family: "Montserrat", sans-serif !important;
 }
 
 .btn-app {
@@ -25,4 +25,8 @@ body {
     width: 100%;
     text-align: center;
     top: 7px;    
+}
+
+.container-fluid {
+    margin-top: 10px;
 }

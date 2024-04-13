@@ -4,6 +4,7 @@ namespace App\Controller;
 use phpseclib3\Net\SSH2;
 use phpseclib3\Exception\UnableToConnectException;
 use App\Entity\Server;
+use App\Entity\Settings;
 use Doctrine\ORM\EntityManagerInterface;
 use Exception;
 use Symfony\Component\Routing\Attribute\Route;
@@ -21,12 +22,17 @@ enum SSHRESULT
 
 class HomeController extends AbstractController
 {
+    private $entityManager;
+
+    function __construct(EntityManagerInterface $entityManager) {
+        $this->entityManager = $entityManager;
+    }
 
     #[Route('/', name: 'monitor')]
-    public function monitor(EntityManagerInterface $entityManager): Response
+    public function monitor(): Response
     {
 
-        $servers = $entityManager->getRepository(Server::class)->findAll();
+        $servers = $this->entityManager->getRepository(Server::class)->findAll();
 
         return $this->render('monitor/monitor.html.twig', [
             'servers' => $servers
@@ -34,9 +40,9 @@ class HomeController extends AbstractController
     }
 
     #[Route('/server/{id}', name: 'server')]
-    public function server(EntityManagerInterface $entityManager, $id): JsonResponse
+    public function server($id): JsonResponse
     {
-        $server = $entityManager->getRepository(Server::class)->find($id);
+        $server = $this->entityManager->getRepository(Server::class)->find($id);
 
         $result = [
             'id' => $id,
@@ -46,13 +52,17 @@ class HomeController extends AbstractController
             'disk' => rand(34, 512),
             'disksize' => rand(34, 512),
             'allsky' => rand(0, 1),
-            'allskytext' => 'Running'
+            'allskytext' => 'Running',
+            'memtotal' => 0,
+            'memused' => 0
         ];
 
         $command = './monitor.py -a';
         $sshResult = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
         if ($sshResult['result'] == SSHRESULT::OK) {
             $data = json_decode($sshResult['data']);
+
+            //$this->checkVersion($data);
 
             $result['running'] = 1;
             $result['cpu'] = $data->cpu;
@@ -61,6 +71,8 @@ class HomeController extends AbstractController
             $result['disksize'] = $data->disksize;
             $result['allsky'] = $data->allsky;
             $result['allskytext'] = $data->allskytext;
+            $result['memtotal'] = $data->memtotal;
+            $result['memused'] = $data->memused;
         } else {
             $result['running'] = 0;
         }
@@ -70,7 +82,7 @@ class HomeController extends AbstractController
     }
 
     #[Route('/server/allsky/action/{action}/{id}', name: 'allsky')]
-    public function action(EntityManagerInterface $entityManager, $action, $id): JsonResponse
+    public function action($action, $id): JsonResponse
     {
         $result = [];
         $remoteAction = '';
@@ -87,7 +99,7 @@ class HomeController extends AbstractController
         }
 
         if ($remoteAction !== '') {
-            $server = $entityManager->getRepository(Server::class)->find($id);
+            $server = $this->entityManager->getRepository(Server::class)->find($id);
             $command = './monitor.py -' . $remoteAction;
             $result = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
         }
@@ -95,7 +107,7 @@ class HomeController extends AbstractController
     }
 
     #[Route('/server/action/{action}/{id}', name: 'pi')]
-    public function serverAction(EntityManagerInterface $entityManager, $action, $id = 0): JsonResponse
+    public function serverAction($action, $id = 0): JsonResponse
     {
         $result = [];
         if ($id == 'this') {
@@ -128,7 +140,7 @@ class HomeController extends AbstractController
                     $remoteAction = 's';
                     break;
                 case 'allshutdown':
-                    $servers = $entityManager->getRepository(Server::class)->findAll();
+                    $servers = $this->entityManager->getRepository(Server::class)->findAll();
                     foreach ($servers as $server) {
                         if ($server->isGlobal()) {
                             $command = './monitor.py -s';
@@ -139,7 +151,7 @@ class HomeController extends AbstractController
             }
 
             if ($remoteAction !== '') {
-                $server = $entityManager->getRepository(Server::class)->find($id);
+                $server = $this->entityManager->getRepository(Server::class)->find($id);
                 $command = './monitor.py -' . $remoteAction;
                 $result = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
             }
@@ -232,5 +244,17 @@ class HomeController extends AbstractController
             'result' => $result,
             'data' => $data
         ];
+    }
+
+    private function checkVersion($data)
+    {
+        $version = $this->entityManager->getRepository(Settings::class)->findOneBy(['Name'=>'version']);
+        if ($version == null) {
+            $monitorScript = file_get_contents();
+        }
+        dump($version);
+        dump($data);
+
+        die();
     }
 }

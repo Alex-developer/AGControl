@@ -7,8 +7,8 @@
                     <div class="info-box {% if server.global %}bg-light{% else %}bg-secondary{% endif %} server-nbm">   
                         <span class="info-box-icon bg-success"><a href="{{ server.url }}" target="_blank"><i class="fab fa-raspberry-pi"></i></a></span>
                         <div class="info-box-content">
-                            <h3>{{ server.name }}</h3>
-                            <h4>{{ server.ip }}</h4>                          
+                            <h4>{{ server.name }}</h4>
+                            <h5>{{ server.ip }}</h5>
                         </div>
                     </div>
                     <div class="progress bg-dark">
@@ -17,17 +17,20 @@
                     </div>                    
                     <div class="card card-success {% if server.global %}bg-light{% else %}bg-secondary{% endif %}">
                         <div class="card-body">
-                            <h4 class="text-center">CPU</h4>
-                            <h2 class="server-cpu text-center">--</h2>
+                            <h5 class="text-center font-weight-light">CPU</h4>
+                            <h4 class="server-cpu text-center">--</h2>
 
-                            <h4 class="text-center mt-4">Temp</h4>
-                            <h2 class="server-temp text-center">--</h2>
+                            <h5 class="text-center font-weight-light">Memory</h4>
+                            <h4 class="server-mem text-center">--</h2>
 
-                            <h4 class="text-center mt-4">Disk</h4>
-                            <h2 class="server-disk text-center">--</h2>
+                            <h5 class="text-center font-weight-light mt-3">Temp</h4>
+                            <h4 class="server-temp text-center">--</h2>
 
-                            <h4 class="text-center mt-4">Allsky</h4>
-                            <h2 class="server-allsky text-center">--</h2>
+                            <h5 class="text-center font-weight-light mt-3">Disk</h4>
+                            <h4 class="server-disk text-center">--</h2>
+
+                            <h5 class="text-center font-weight-light mt-3">Allsky</h4>
+                            <h4 class="server-allsky text-center">--</h2>
 
                             <div class="text-center">
                                 <a class="server-allsky-start server-allsky-btn btn btn-app bg-success" data-action="start" data-id="{{ server.id }}">
