@@ -11,8 +11,10 @@ use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Process\Exception\ProcessFailedException;
+use App\Kernel;
 use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
+
 enum SSHRESULT
 {
     case OK;
@@ -23,9 +25,11 @@ enum SSHRESULT
 class HomeController extends AbstractController
 {
     private $entityManager;
+    private $kernel;
 
-    function __construct(EntityManagerInterface $entityManager) {
+    function __construct(Kernel $kernel, EntityManagerInterface $entityManager) {
         $this->entityManager = $entityManager;
+        $this->kernel = $kernel;
     }
 
     #[Route('/', name: 'monitor')]
@@ -42,6 +46,7 @@ class HomeController extends AbstractController
     #[Route('/server/{id}', name: 'server')]
     public function server($id): JsonResponse
     {
+
         $server = $this->entityManager->getRepository(Server::class)->find($id);
 
         $result = [
@@ -62,7 +67,13 @@ class HomeController extends AbstractController
         if ($sshResult['result'] == SSHRESULT::OK) {
             $data = json_decode($sshResult['data']);
 
-            //$this->checkVersion($data);
+            if ($this->remoteMonitorUpgradeRequired($data)) {
+                $this->tryInstall($server->getIp(), $server->getUser(), $server->getPassword());
+                $sshResult = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
+                if ($sshResult['result'] == SSHRESULT::OK) {
+                    $data = json_decode($sshResult['data']);
+                }        
+            }
 
             $result['running'] = 1;
             $result['cpu'] = $data->cpu;
@@ -171,7 +182,8 @@ class HomeController extends AbstractController
         return $result;
     }
 
-    private function tryInstall($host, $user, $password) {
+    private function tryInstall($host, $user, $password) 
+    {
         $result = false;
 
         try {
@@ -179,13 +191,13 @@ class HomeController extends AbstractController
             if (!$ssh->login($user, $password)) {
                 $result = SSHRESULT::FAIL;
             } else {
-                $command = 'wget -N https://raw.githubusercontent.com/Alex-developer/pimonitor/main/install.sh';
+                $command = 'wget -N https://raw.githubusercontent.com/Alex-developer/AGControl/main/remote/install.sh';
                 $data = $ssh->exec($command);
                 $command = 'chmod +x install.sh';
                 $data = $ssh->exec($command);
                 $command = './install.sh';
                 $data = $ssh->exec($command);
-                $command = 'wget -N https://raw.githubusercontent.com/Alex-developer/pimonitor/main/monitor.py';
+                $command = 'wget -N https://raw.githubusercontent.com/Alex-developer/AGControl/main/remote/monitor.py';
                 $data = $ssh->exec($command);                 
                 $command = 'chmod +x monitor.py';
                 $data = $ssh->exec($command);                 
@@ -208,7 +220,7 @@ class HomeController extends AbstractController
         $result = $this->doSendSSHCommand($host, $user, $password, $command);
 
         if ($result['result'] == SSHRESULT::TRYINSTALL) {
-            $result = $this->tryInstall($host, $user, $password);
+      //      $result = $this->tryInstall($host, $user, $password);
         }
 
         return [
@@ -246,15 +258,28 @@ class HomeController extends AbstractController
         ];
     }
 
-    private function checkVersion($data)
+    private function remoteMonitorUpgradeRequired($data)
     {
-        $version = $this->entityManager->getRepository(Settings::class)->findOneBy(['Name'=>'version']);
-        if ($version == null) {
-            $monitorScript = file_get_contents();
-        }
-        dump($version);
-        dump($data);
+        $result = false;
 
-        die();
+        $basePath = $this->kernel->getProjectDir();
+        $remoteScript = $basePath . DIRECTORY_SEPARATOR . 'remote' . DIRECTORY_SEPARATOR . 'monitor.py';
+
+        $process = new Process(['python3', $remoteScript, '-a']);
+        $process->run();
+        
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
+        }
+
+        $output = $process->getOutput();
+        $output = json_decode($output);
+        $version = $output->version;
+
+        if (version_compare($data->version, $version) == -1) {
+            $result = true;
+        }
+
+        return $result;
     }
 }
