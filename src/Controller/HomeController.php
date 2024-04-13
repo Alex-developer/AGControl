@@ -67,7 +67,13 @@ class HomeController extends AbstractController
         if ($sshResult['result'] == SSHRESULT::OK) {
             $data = json_decode($sshResult['data']);
 
-            if ($this->remoteMonitorUpgradeRequired($data->version)) {
+            if (isset($data->version)) {
+                $serverVersion = $data->version;
+            } else {
+                $serverVersion = '0.0.0';
+            }
+
+            if ($this->remoteMonitorUpgradeRequired($serverVersion)) {
                 $this->tryInstall($server->getIp(), $server->getUser(), $server->getPassword());
                 $sshResult = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
                 if ($sshResult['result'] == SSHRESULT::OK) {
