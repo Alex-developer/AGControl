@@ -6,7 +6,7 @@ import psutil
 from psutil._common import bytes2human
 import json
 
-VERSION = '1.0.26'
+VERSION = '1.0.27'
 parser = argparse.ArgumentParser(description='Monitor controls', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('-a', '--all', action='store_true', help='Get All data')
 
@@ -66,13 +66,14 @@ if args.all:
             if os.path.isfile(allskyStatus):
                 found = True
         except Exception as e:
-            allskyRunningText = 'Not Installed'
+            pass
         
     if found:
         with open(allskyStatus) as file:
             data = json.load(file)
         allskyRunningText = data['status']
-
+    else:
+        allskyRunningText = 'Not Installed'
 
     if allskyRunningText == '':
         if allskyRunning:
