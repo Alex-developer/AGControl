@@ -67,7 +67,7 @@ class HomeController extends AbstractController
         if ($sshResult['result'] == SSHRESULT::OK) {
             $data = json_decode($sshResult['data']);
 
-            if ($this->remoteMonitorUpgradeRequired($data)) {
+            if ($this->remoteMonitorUpgradeRequired($data['version'])) {
                 $this->tryInstall($server->getIp(), $server->getUser(), $server->getPassword());
                 $sshResult = $this->sendSSHCommand($server->getIp(), $server->getUser(), $server->getPassword(), $command);
                 if ($sshResult['result'] == SSHRESULT::OK) {
@@ -258,7 +258,7 @@ class HomeController extends AbstractController
         ];
     }
 
-    private function remoteMonitorUpgradeRequired($data)
+    private function remoteMonitorUpgradeRequired($serverVersion)
     {
         $result = false;
 
@@ -276,7 +276,7 @@ class HomeController extends AbstractController
         $output = json_decode($output);
         $version = $output->version;
 
-        if (version_compare($data->version, $version) == -1) {
+        if (version_compare($serverVersion, $version) == -1) {
             $result = true;
         }
 
