@@ -176,3 +176,28 @@ function updateTimer() {
 }
 
 setInterval(updateTimer, 1000);
+
+
+function getHostInfo() {
+    $.ajax({
+        method: 'GET',
+        url: '/serverinfo',
+        context: this
+    }).done(function (result) {
+        $('#server-load-average').html(result.load1 + ' ' + result.load2 + ' ' + result.load3);
+
+        $('#server-load-warning').hide();
+        if (result.load1 > 4) {
+            $('#server-load-warning').removeClass('text-warning');
+            $('#server-load-warning').addClass('text-danger');
+            $('#server-load-warning').show();
+        } else {
+            if (result.load1 > 3) {
+                $('#server-load-warning').removeClass('text-danger');
+                $('#server-load-warning').addClass('text-warning');
+                $('#server-load-warning').show();
+            }
+        }
+    });    
+}
+setInterval(getHostInfo,1000);

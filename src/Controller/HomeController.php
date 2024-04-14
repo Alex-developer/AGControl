@@ -176,6 +176,27 @@ class HomeController extends AbstractController
         return $this->json($result);
     }
 
+    #[Route('/serverinfo', name: 'serverinfo')]
+    public function serverInfo()
+    {
+        $result = [
+            'load1' => 0,
+            'load2' => 0,
+            'load3' => 0,
+        ];
+
+        $load = file_get_contents('/proc/loadavg');
+        $load = explode(' ', $load);
+
+        $result['load1'] = $load[0];
+        $result['load2'] = $load[1];
+        $result['load3'] = $load[2];
+
+        dump($load);
+
+        return $this->json($result);
+    }
+
     private function isJSON($data)
     {
         $result = true;
